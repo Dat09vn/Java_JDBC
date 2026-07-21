@@ -12,16 +12,17 @@ import java.time.LocalDateTime;
 /**
  * GetAPI
  */
-public class GetAPI {
+public class CollectBankRequest {
 
-    public static List<BankRequest> getNewRequests() throws SQLException {
+    public static List<BankRequest> getNewRequests(String status) throws SQLException {
         List<BankRequest> requests = new ArrayList<>();
-        String selectSQL = "SELECT * FROM bank_requests WHERE status = 'NEW' ORDER BY submitted_at";
+        String selectSQL = "SELECT * FROM bank_requests WHERE status = ? ORDER BY submitted_at";
         
         try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(selectSQL)) {
-            
+             PreparedStatement pstmt = conn.prepareStatement(selectSQL)) {
+            pstmt.setString(1, status);
+            ResultSet rs = pstmt.executeQuery();
+
             while (rs.next()) {
                 BankRequest request = mapResultSetToRequest(rs);
                 requests.add(request);
